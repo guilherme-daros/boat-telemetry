@@ -56,8 +56,8 @@ function calculateAverageTemperature() {
 client.onMessageArrived = (message) => {
   const topic = message.destinationName;
   const data = message.payloadString.split(";");
-  console.log(topic);
-  console.log(data);
+  //console.log(topic);
+  //onsole.log(data);
   const { overTemperature, overCurrent, CHG, DSG, overVoltage, underVoltage } =
     interface.warningList;
 
