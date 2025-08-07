@@ -43,8 +43,8 @@ const defaultVGraphOptions = {
           display: true,
           ticks: {
             min: 0,
-            max: 300,
-            stepSize: 20,
+            max: 360,
+            stepSize: 60,
             callback: (value) => `${value / 10} V`,
           },
         },

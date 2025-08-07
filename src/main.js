@@ -56,8 +56,6 @@ function calculateAverageTemperature() {
 client.onMessageArrived = (message) => {
   const topic = message.destinationName;
   const data = message.payloadString.split(";");
-  //console.log(topic);
-  //onsole.log(data);
   const { overTemperature, overCurrent, CHG, DSG, overVoltage, underVoltage } =
     interface.warningList;
 
@@ -67,29 +65,29 @@ client.onMessageArrived = (message) => {
 
   switch (topic) {
     case "0x186455F4":
-      boatBattery.power = Number(data[3]);
-      power.innerHTML = `${boatBattery.power} W`;
-      overTemperature.style.backgroundColor =
-        data[2][0] == "1" || data[2][1] == "1" ? red : green;
-      overCurrent.style.backgroundColor =
-        data[2][2] == "1" || data[2][3] == "1" ? red : green;
-      CHG.style.backgroundColor = data[2][4] == "1" ? red : green;
+      overTemperature.style.backgroundColor = data[2][0] == "1" || data[2][1] == "1" ? red : green;
+      overCurrent.style.backgroundColor = data[2][2] == "1" || data[2][3] == "1" ? red : green;
       DSG.style.backgroundColor = data[2][5] == "1" ? red : green;
+      CHG.style.backgroundColor = data[2][4] == "1" ? red : green;
       overVoltage.style.backgroundColor = data[2][6] == "1" ? red : green;
       underVoltage.style.backgroundColor = data[2][7] == "1" ? red : green;
+
+      boatBattery.power = Number(data[3]);
+      power.innerHTML = `${boatBattery.power} W`;
       break;
 
     case "0x186555F4":
       boatBattery.SoC = parseInt(data[3]);
       SoC.innerHTML = `${boatBattery.SoC} %`;
 
-      boatBattery.cPack = (parseInt(data[2]) + parseInt(data[1])) / 2;
-      updateGraph(interface.cGraph, boatBattery.cPack);
-
       boatBattery.vPack = parseInt(data[0]);
+      console.log(data[0])
       vPackInfo.innerHTML = `${boatBattery.vPack / 10} V`;
       updateGraph(interface.vGraph, boatBattery.vPack);
 
+      boatBattery.cPack = (parseInt(data[2]) + parseInt(data[1])) / 2;
+      cPackInfo.innerHTML = `${boatBattery.cPack / 10} V`;
+      updateGraph(interface.cGraph, boatBattery.cPack);
       break;
 
     case "0x186655F4":
