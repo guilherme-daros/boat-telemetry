@@ -30,10 +30,9 @@ window.onload = () => {
   client.connect({
     onSuccess: () => {
       console.log("MQTT Connected Succesfully");
-      client.subscribe("0x186455F4");
-      client.subscribe("0x186555F4");
-      client.subscribe("0x186655F4");
-      client.subscribe("0x186755F4");
+      topics.forEach(topic => {
+        client.subscribe(topic);
+      });
     },
   });
 };
@@ -43,6 +42,16 @@ client.onConnectionLost = (responseObject) => {
     console.log("onConnectionLost:" + responseObject.errorMessage);
   }
 };
+
+function calculateAverageTemperature() {
+  const cellTemps = Object.values(boatBattery.cellTemp);
+  const validTemps = cellTemps.filter((temp) => temp !== 0);
+  if (validTemps.length === 0) {
+    return 0;
+  }
+  const totalTemp = validTemps.reduce((a, b) => a + b, 0);
+  return totalTemp / validTemps.length;
+}
 
 client.onMessageArrived = (message) => {
   const topic = message.destinationName;
@@ -75,12 +84,11 @@ client.onMessageArrived = (message) => {
       SoC.innerHTML = `${boatBattery.SoC} %`;
 
       boatBattery.cPack = (parseInt(data[2]) + parseInt(data[1])) / 2;
-      cPackInfo.innerHTML = `${boatBattery.cPack / 10} A`;
-      updateCGraph();
+      updateGraph(interface.cGraph, boatBattery.cPack);
 
       boatBattery.vPack = parseInt(data[0]);
       vPackInfo.innerHTML = `${boatBattery.vPack / 10} V`;
-      updateVGraph();
+      updateGraph(interface.vGraph, boatBattery.vPack);
 
       break;
 
@@ -89,10 +97,7 @@ client.onMessageArrived = (message) => {
       boatBattery.cellTemp.cell3 = parseInt(data[2]);
       boatBattery.cellTemp.cell2 = parseInt(data[1]);
       boatBattery.cellTemp.cell1 = parseInt(data[0]);
-      boatBattery.tPack =
-        Object.values(boatBattery.cellTemp).reduce((a, b) => a + b, 0) /
-        Object.values(boatBattery.cellTemp).filter((val) => val !== 0)
-          .length || 0;
+      boatBattery.tPack = calculateAverageTemperature();
       tPackInfo.innerHTML = `${boatBattery.tPack / 10} °C`;
       break;
 
@@ -101,12 +106,9 @@ client.onMessageArrived = (message) => {
       boatBattery.cellTemp.cell7 = parseInt(data[2]);
       boatBattery.cellTemp.cell6 = parseInt(data[1]);
       boatBattery.cellTemp.cell5 = parseInt(data[0]);
-      boatBattery.tPack =
-        Object.values(boatBattery.cellTemp).reduce((a, b) => a + b, 0) /
-        Object.values(boatBattery.cellTemp).filter((val) => val !== 0)
-          .length || 0;
+      boatBattery.tPack = calculateAverageTemperature();
       tPackInfo.innerHTML = `${boatBattery.tPack / 10} °C`;
-      updateTGraph();
+      updateGraph(interface.tGraph, boatBattery.tPack);
       break;
 
     default:
